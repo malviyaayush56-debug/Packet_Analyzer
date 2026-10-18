@@ -1,349 +1,377 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DPI Packet Analyzer Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>DPI Packet Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #f0f4f8;
-            --primary-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            --card-bg: #ffffff;
-            --text-main: #2d3748;
-            --text-muted: #718096;
-            --accent-blue: #3182ce;
-            --accent-danger: #e53e3e;
-            --accent-success: #38a169;
-            --accent-info: #00b4d8;
-            --border-radius: 12px;
-            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        :root{
+          --bg:#eef1f4; --panel:#ffffff; --ink:#16212b; --muted:#5d6b78; --line:#d9e0e6;
+          --teal:#0b7a75; --teal-d:#075b57; --red:#b3261e; --amber:#a15c00; --navy:#14232f;
+          --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+          --mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
         }
-
-        body {
-            background-color: var(--bg-color);
-            font-family: 'Poppins', sans-serif;
-            color: var(--text-main);
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Hero Header Styling */
-        .hero-section {
-            background: var(--primary-gradient);
-            color: #ffffff;
-            padding: 2.5rem 1rem;
-            border-radius: 0 0 24px 24px;
-            box-shadow: 0 10px 30px rgba(15, 32, 39, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .hero-section h2 {
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .hero-section p {
-            font-weight: 300;
-            color: #cbd5e0;
-            letter-spacing: 1px;
-        }
-
-        /* Card Custom Pro Design */
-        .card {
-            background: var(--card-bg);
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            transition: var(--transition-smooth);
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-        }
-
-        .card-title-custom {
-            font-weight: 600;
-            font-size: 1.2rem;
-            letter-spacing: -0.3px;
-        }
-
-        /* Form Inputs Pro Styling */
-        .form-label {
-            font-weight: 500;
-            color: var(--text-main);
-            font-size: 0.9rem;
-            margin-bottom: 0.4rem;
-        }
-
-        .form-control, .form-select {
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 0.6rem 0.9rem;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            transition: var(--transition-smooth);
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
-            outline: none;
-        }
-
-        /* Buttons Styling */
-        .btn {
-            font-weight: 500;
-            border-radius: 8px;
-            padding: 0.6rem 1.2rem;
-            transition: var(--transition-smooth);
-        }
-
-        .btn-primary {
-            background-color: #3182ce;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #2b6cb0;
-            transform: translateY(-1px);
-        }
-
-        .btn-success {
-            background-color: #38a169;
-            border: none;
-        }
-        .btn-success:hover {
-            background-color: #2f855a;
-            transform: translateY(-1px);
-        }
-
-        .btn-outline-clear {
-            border: 1.5px solid #cbd5e0;
-            color: var(--text-muted);
-            background: transparent;
-        }
-        .btn-outline-clear:hover {
-            background-color: #feb2b2;
-            color: #9b2c2c;
-            border-color: #feb2b2;
-        }
-
-        /* Active Rules List Styling */
-        .list-group-item {
-            border: 1px solid #edf2f7;
-            margin-bottom: 8px;
-            border-radius: 8px !important;
-            transition: var(--transition-smooth);
-            background-color: #f7fafc;
-        }
-
-        .list-group-item:hover {
-            background-color: #edf2f7;
-        }
-
-        .rule-badge {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.25rem 0.6rem;
-            border-radius: 50px;
-            text-transform: uppercase;
-        }
-
-        .badge-domain { background-color: #ebf8ff; color: #2b6cb0; }
-        .badge-ip { background-color: #e6fffa; color: #234e52; }
-        .badge-app { background-color: #faf5ff; color: #553c9a; }
-
-        .unlock-btn {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--accent-danger);
-            transition: var(--transition-smooth);
-        }
-        .unlock-btn:hover {
-            color: #9b2c2c;
-            transform: scale(1.05);
-        }
-
-        /* Terminal Output Console */
-        .console-output {
-            background-color: #1a202c !important;
-            color: #63b3ed !important;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem;
-            border: 2px solid #2d3748;
-            box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
-            border-radius: 8px;
-        }
+        *{box-sizing:border-box}
+        body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5}
+        header{background:var(--navy);color:#fff;padding:22px 24px}
+        .wrap{max-width:1180px;margin:0 auto}
+        header .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+        header h1{margin:0;font-size:1.35rem;font-weight:600}
+        header p{margin:2px 0 0;color:#a9bac7;font-size:.9rem}
+        .status{display:flex;align-items:center;gap:8px;font-size:.85rem;color:#cfe0ea}
+        .dot{width:9px;height:9px;border-radius:50%;background:#6b7c88}
+        .dot.up{background:#35c48b}.dot.down{background:#ef6a62}
+        main.wrap{display:grid;grid-template-columns:360px 1fr;gap:20px;padding:24px 16px 48px}
+        @media(max-width:900px){main.wrap{grid-template-columns:1fr}}
+        .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;margin-bottom:20px}
+        .panel h2{margin:0 0 14px;font-size:1rem;font-weight:600}
+        .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+        .panel-head h2{margin:0}
+        label{display:block;font-size:.85rem;font-weight:500;margin:0 0 5px}
+        input[type=text],select,input[type=file]{width:100%;font:inherit;font-size:.92rem;padding:9px 11px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink)}
+        input:focus,select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+        .field{margin-bottom:14px}
+        .hint{font-size:.8rem;color:var(--muted);margin-top:4px}
+        button{font:inherit;font-size:.92rem;font-weight:500;border:0;border-radius:4px;padding:10px 16px;cursor:pointer}
+        .btn-main{background:var(--teal);color:#fff;width:100%}
+        .btn-main:hover{background:var(--teal-d)}
+        .btn-main:disabled{opacity:.6;cursor:wait}
+        .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--muted);padding:5px 11px;font-size:.82rem}
+        .btn-ghost:hover{border-color:var(--red);color:var(--red)}
+        .btn-link{background:none;color:var(--red);padding:2px 6px;font-size:.82rem}
+        .btn-link:hover{text-decoration:underline}
+        ul.rules{list-style:none;margin:0;padding:0}
+        ul.rules li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+        ul.rules li:last-child{border-bottom:0}
+        .tag{display:inline-block;min-width:62px;text-align:center;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:3px;margin-right:10px}
+        .tag.domain{background:#dff1ef;color:var(--teal-d)}
+        .tag.ip{background:#e5ebf7;color:#27427e}
+        .tag.app{background:#f1e6f7;color:#6a2c86}
+        .rule-val{font-family:var(--mono);font-size:.88rem;word-break:break-all}
+        .empty{color:var(--muted);font-size:.9rem;padding:6px 0}
+        .drop{border:2px dashed var(--line);border-radius:6px;padding:22px;text-align:center;margin-bottom:14px;background:#f8fafb}
+        .drop.over{border-color:var(--teal);background:#eaf6f5}
+        .drop p{margin:0 0 10px;color:var(--muted);font-size:.9rem}
+        .msg{padding:10px 12px;border-radius:4px;font-size:.88rem;margin-bottom:14px;display:none}
+        .msg.err{display:block;background:#fbeceb;color:var(--red);border:1px solid #f0c5c2}
+        .msg.ok{display:block;background:#e6f4ef;color:var(--teal-d);border:1px solid #bfe0d6}
+        .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+        .stat{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:#fbfcfd}
+        .stat .v{font-size:1.5rem;font-weight:600;font-family:var(--mono);word-break:break-word}
+        .stat .k{font-size:.8rem;color:var(--muted)}
+        .stat.bad .v{color:var(--red)}
+        .block-title{font-size:.92rem;font-weight:600;margin:18px 0 8px}
+        .bar-row{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;font-size:.86rem;margin-bottom:6px}
+        .bar-row .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .bar{height:10px;background:#e6ecf0;border-radius:2px;overflow:hidden}
+        .bar i{display:block;height:100%;background:var(--teal)}
+        .bar-row .c{text-align:right;font-family:var(--mono)}
+        .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;max-height:380px;overflow-y:auto}
+        table{width:100%;border-collapse:collapse;font-size:.85rem}
+        th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+        th{background:#f3f6f8;position:sticky;top:0;font-weight:600}
+        td{font-family:var(--mono);font-size:.82rem}
+        tr:last-child td{border-bottom:0}
+        td.blocked,td.true{color:var(--red);font-weight:500}
+        .chips{display:flex;flex-wrap:wrap;gap:6px}
+        .chip{background:#eef2f5;border-radius:3px;padding:2px 9px;font-family:var(--mono);font-size:.82rem}
+        details{margin-top:20px}
+        summary{cursor:pointer;font-size:.88rem;color:var(--muted)}
+        pre{background:var(--navy);color:#bfe3df;font-family:var(--mono);font-size:.82rem;padding:14px;border-radius:6px;max-height:360px;overflow:auto;margin:10px 0 0}
+        #results{display:none}
+        .spin{display:none;color:var(--muted);font-size:.9rem;padding:6px 0}
     </style>
 </head>
 <body>
 
-<div class="hero-section text-center mb-5">
-    <h2>🌐 DPI Packet Analyzer & Firewall Engine</h2>
-    <p class="mb-0">Java 25 & Spring Boot Powered Deep Packet Inspection Tool</p>
-</div>
-
-<div class="container mb-5">
-    <div class="row g-4">
-
-        <div class="col-md-5">
-            <div class="card p-4 mb-4">
-                <h4 class="mb-3 card-title-custom text-primary">🚫 Add Blocking Rule</h4>
-                <form id="ruleForm">
-                    <div class="mb-3">
-                        <label class="form-label">Rule Type</label>
-                        <select class="form-select" id="ruleType">
-                            <option value="domain">Domain Keyword (e.g., facebook)</option>
-                            <option value="ip">IP Address (e.g., 192.168.1.1)</option>
-                            <option value="app">Application (e.g., YOUTUBE)</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Value</label>
-                        <input type="text" class="form-control" id="ruleValue" placeholder="Enter keyword, IP or App name" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 shadow-sm">Add Rule</button>
-                </form>
-            </div>
-
-            <div class="card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="card-title-custom text-dark mb-0">🔒 Active Policies</h4>
-                    <button class="btn btn-sm btn-outline-clear" onclick="clearAllRules()">Clear All</button>
-                </div>
-                <ul class="list-group border-0" id="rulesList">
-                </ul>
-            </div>
+<header>
+    <div class="wrap">
+        <div>
+            <h1>DPI Packet Analyzer</h1>
+            <p>Upload a PCAP capture, set blocking rules, and see which traffic matches.</p>
         </div>
-
-        <div class="col-md-7">
-            <div class="card p-4 mb-4">
-                <h4 class="mb-3 card-title-custom text-success">📂 Upload Traffic Log (PCAP)</h4>
-                <form id="uploadForm">
-                    <div class="mb-3">
-                        <input class="form-control" type="file" id="pcapFile" required>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100 shadow-sm">Run Deep Packet Inspection</button>
-                </form>
-            </div>
-
-            <div class="card p-4 d-none" id="reportCard">
-                <h4 class="card-title-custom text-info mb-3">📊 Inspection Matrix Output</h4>
-                <pre class="console-output p-3 m-0" id="reportOutput" style="max-height: 430px; overflow-y: auto;"></pre>
-            </div>
-        </div>
-
+        <div class="status"><span class="dot" id="dot"></span><span id="statusText">Checking server</span></div>
     </div>
-</div>
+</header>
+
+<main class="wrap">
+
+    <section>
+        <div class="panel">
+            <h2>Add blocking rule</h2>
+            <form id="ruleForm">
+                <div class="field">
+                    <label for="ruleType">Rule type</label>
+                    <select id="ruleType">
+                        <option value="domain">Domain keyword</option>
+                        <option value="ip">IP address</option>
+                        <option value="app">Application</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="ruleValue">Value</label>
+                    <input type="text" id="ruleValue" placeholder="facebook" required autocomplete="off">
+                    <div class="hint" id="ruleHint">Blocks any domain containing this word.</div>
+                </div>
+                <div id="ruleMsg" class="msg"></div>
+                <button type="submit" class="btn-main">Add rule</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <div class="panel-head">
+                <h2>Active rules</h2>
+                <button class="btn-ghost" id="clearBtn" type="button">Clear all</button>
+            </div>
+            <ul class="rules" id="rulesList"></ul>
+        </div>
+    </section>
+
+    <section>
+        <div class="panel">
+            <h2>Analyze a capture</h2>
+            <form id="uploadForm">
+                <div class="drop" id="drop">
+                    <p id="dropText">Choose a .pcap or .pcapng file (up to 50 MB)</p>
+                    <input type="file" id="pcapFile" accept=".pcap,.pcapng,.cap" required>
+                </div>
+                <div id="uploadMsg" class="msg"></div>
+                <button type="submit" class="btn-main" id="runBtn">Run inspection</button>
+            </form>
+        </div>
+
+        <div class="panel" id="results">
+            <h2>Inspection results</h2>
+            <div class="spin" id="spin">Analyzing packets…</div>
+            <div id="report"></div>
+            <details>
+                <summary>Show raw JSON</summary>
+                <pre id="raw"></pre>
+            </details>
+        </div>
+    </section>
+
+</main>
 
 <script>
-    const API_BASE = "http://localhost:8080/api/dpi";
+    const API = "/api/dpi";
+    const $ = id => document.getElementById(id);
 
-    // Fetch and display active rules on load
-    async function fetchRules() {
-        const res = await fetch(`${API_BASE}/rules`);
-        const data = await res.json();
-        const list = document.getElementById('rulesList');
-        list.innerHTML = '';
-
-        if(data.blockedDomains.length === 0 && data.blockedIps.length === 0 && data.blockedApps.length === 0) {
-            list.innerHTML = `<li class="list-group-item text-muted text-center border-dashed py-4">No active enterprise blocking rules.</li>`;
-            return;
-        }
-
-        data.blockedDomains.forEach(domain => {
-            list.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center border-0 shadow-sm mb-2">
-                <span><span class="rule-badge badge-domain me-2">Domain</span> <strong>${domain}</strong></span>
-                <button class="btn btn-sm btn-link unlock-btn text-decoration-none" onclick="unblockDomain('${domain}')">Unlock</button>
-            </li>`;
-        });
-
-        data.blockedIps.forEach(ip => {
-            list.innerHTML += `<li class="list-group-item border-0 shadow-sm mb-2">
-                <span><span class="rule-badge badge-ip me-2">IP</span> <strong>${ip}</strong></span>
-            </li>`;
-        });
-
-        data.blockedApps.forEach(app => {
-            list.innerHTML += `<li class="list-group-item border-0 shadow-sm mb-2">
-                <span><span class="rule-badge badge-app me-2">App</span> <strong>${app}</strong></span>
-            </li>`;
-        });
+    function esc(s){
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function pretty(k){
+      return String(k).replace(/([a-z])([A-Z])/g,'$1 $2').replace(/[_-]+/g,' ').replace(/^./,c=>c.toUpperCase());
+    }
+    function showMsg(el, text, type){
+      el.textContent = text;
+      el.className = 'msg ' + (text ? type : '');
     }
 
-    // Add Rule
-    document.getElementById('ruleForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const type = document.getElementById('ruleType').value;
-        const value = document.getElementById('ruleValue').value;
+    /* ---------- Server status ---------- */
+    async function checkHealth(){
+      try{
+        const r = await fetch(API + '/health');
+        const ok = r.ok;
+        $('dot').className = 'dot ' + (ok ? 'up' : 'down');
+        $('statusText').textContent = ok ? 'Server online' : 'Server error';
+      }catch(e){
+        $('dot').className = 'dot down';
+        $('statusText').textContent = 'Server unreachable';
+      }
+    }
 
-        let payload = {};
-        if(type === 'domain') payload = { domain: value };
-        if(type === 'ip') payload = { ip: value };
-        if(type === 'app') payload = { app: value };
-
-        await fetch(`${API_BASE}/rules/${type}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        document.getElementById('ruleValue').value = '';
-        fetchRules();
+    /* ---------- Rules ---------- */
+    const hints = {
+      domain:['facebook','Blocks any domain containing this word.'],
+      ip:['192.168.1.50','Blocks traffic to or from this address.'],
+      app:['YOUTUBE','Use the application name, for example YOUTUBE.']
+    };
+    $('ruleType').addEventListener('change', () => {
+      const h = hints[$('ruleType').value];
+      $('ruleValue').placeholder = h[0];
+      $('ruleHint').textContent = h[1];
     });
 
-    // Unblock specific domain
-    async function unblockDomain(name) {
-        await fetch(`${API_BASE}/rules/domain/${name}`, { method: 'DELETE' });
-        fetchRules();
+    async function getRules(){
+      const r = await fetch(API + '/rules');
+      if(!r.ok) throw new Error('Could not load rules');
+      return r.json();
     }
 
-    // Clear all rules
-    async function clearAllRules() {
-        await fetch(`${API_BASE}/rules`, { method: 'DELETE' });
-        fetchRules();
+    async function fetchRules(){
+      const list = $('rulesList');
+      try{
+        const d = await getRules();
+        const rows = [];
+        (d.blockedDomains||[]).forEach(v => rows.push(
+          `<li><span><span class="tag domain">Domain</span><span class="rule-val">${esc(v)}</span></span>
+           <button class="btn-link" data-domain="${esc(v)}" type="button">Unblock</button></li>`));
+        (d.blockedIps||[]).forEach(v => rows.push(
+          `<li><span><span class="tag ip">IP</span><span class="rule-val">${esc(v)}</span></span></li>`));
+        (d.blockedApps||[]).forEach(v => rows.push(
+          `<li><span><span class="tag app">App</span><span class="rule-val">${esc(v)}</span></span></li>`));
+        list.innerHTML = rows.length ? rows.join('') : '<li class="empty">No rules yet. Add one to block matching traffic.</li>';
+      }catch(e){
+        list.innerHTML = '<li class="empty">Could not load rules.</li>';
+      }
     }
 
-    // Upload and Analyze PCAP File
-    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const fileInput = document.getElementById('pcapFile');
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-
-        const reportCard = document.getElementById('reportCard');
-        const reportOutput = document.getElementById('reportOutput');
-
-        reportCard.classList.remove('d-none');
-        reportOutput.innerText = "[SYSTEM INFO] Parsing layer-7 payload blocks...\n[SYSTEM INFO] Running multi-threaded rule validation matching...\n\nPlease wait...";
-
-        try {
-            const res = await fetch(`${API_BASE}/analyze`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            reportOutput.innerText = JSON.stringify(data, null, 2);
-        } catch (err) {
-            reportOutput.innerText = "[ERROR] Deep Packet Inspection analysis execution crashed or file bad format.";
-        }
+    $('rulesList').addEventListener('click', async e => {
+      const d = e.target.dataset && e.target.dataset.domain;
+      if(!d) return;
+      await fetch(API + '/rules/domain/' + encodeURIComponent(d), {method:'DELETE'});
+      fetchRules();
     });
 
-    // Initial Load
+    $('ruleForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const type = $('ruleType').value;
+      const value = $('ruleValue').value.trim();
+      if(!value) return;
+      const body = {}; body[type] = value;
+      showMsg($('ruleMsg'), '', '');
+      try{
+        const r = await fetch(API + '/rules/' + type, {
+          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+        });
+        const data = await r.json();
+        if(!r.ok){
+          let m = data.error || 'Could not add the rule.';
+          if(data.validApps) m += ' Valid apps: ' + data.validApps.join(', ');
+          showMsg($('ruleMsg'), m, 'err');
+        }else{
+          $('ruleValue').value = '';
+        }
+      }catch(err){
+        showMsg($('ruleMsg'), 'Could not reach the server.', 'err');
+      }
+      fetchRules();
+    });
+
+    $('clearBtn').addEventListener('click', async () => {
+      await fetch(API + '/rules', {method:'DELETE'});
+      fetchRules();
+    });
+
+    /* ---------- Upload ---------- */
+    $('pcapFile').addEventListener('change', () => {
+      const f = $('pcapFile').files[0];
+      $('dropText').textContent = f ? f.name + ' (' + (f.size/1024/1024).toFixed(2) + ' MB)' : 'Choose a .pcap or .pcapng file (up to 50 MB)';
+    });
+    ['dragover','dragenter'].forEach(ev => $('drop').addEventListener(ev, e => {e.preventDefault();$('drop').classList.add('over');}));
+    ['dragleave','drop'].forEach(ev => $('drop').addEventListener(ev, e => {e.preventDefault();$('drop').classList.remove('over');}));
+    $('drop').addEventListener('drop', e => {
+      if(e.dataTransfer.files.length){
+        $('pcapFile').files = e.dataTransfer.files;
+        $('pcapFile').dispatchEvent(new Event('change'));
+      }
+    });
+
+    $('uploadForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const file = $('pcapFile').files[0];
+      if(!file) return;
+      if(file.size > 50*1024*1024){
+        showMsg($('uploadMsg'), 'This file is larger than 50 MB. Upload a smaller capture.', 'err');
+        return;
+      }
+      showMsg($('uploadMsg'), '', '');
+      $('results').style.display = 'block';
+      $('report').innerHTML = '';
+      $('raw').textContent = '';
+      $('spin').style.display = 'block';
+      $('runBtn').disabled = true;
+      $('runBtn').textContent = 'Analyzing…';
+
+      try{
+        const rules = await getRules();
+        const fd = new FormData();
+        fd.append('file', file);
+        (rules.blockedDomains||[]).forEach(v => fd.append('blockDomains', v));
+        (rules.blockedIps||[]).forEach(v => fd.append('blockIps', v));
+        (rules.blockedApps||[]).forEach(v => fd.append('blockApps', v));
+
+        const r = await fetch(API + '/analyze', {method:'POST', body:fd});
+        const data = await r.json();
+        $('spin').style.display = 'none';
+        if(!r.ok){
+          showMsg($('uploadMsg'), data.error || 'Analysis failed.', 'err');
+          $('results').style.display = 'none';
+        }else{
+          $('raw').textContent = JSON.stringify(data, null, 2);
+          $('report').innerHTML = renderReport(data);
+        }
+      }catch(err){
+        $('spin').style.display = 'none';
+        $('results').style.display = 'none';
+        showMsg($('uploadMsg'), 'Analysis failed. Check that the file is a valid PCAP capture.', 'err');
+      }
+      $('runBtn').disabled = false;
+      $('runBtn').textContent = 'Run inspection';
+      fetchRules();
+    });
+
+    /* ---------- Report rendering (works with any report shape) ---------- */
+    const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
+    const isScalar = v => v === null || ['string','number','boolean'].includes(typeof v);
+
+    function renderReport(data){
+      if(!isObj(data)) return '<pre>' + esc(JSON.stringify(data,null,2)) + '</pre>';
+      let stats = '', blocks = '';
+      for(const [k,v] of Object.entries(data)){
+        if(isScalar(v)){
+          const bad = /block|drop|denied/i.test(k) && Number(v) > 0;
+          stats += `<div class="stat ${bad?'bad':''}"><div class="v">${esc(v)}</div><div class="k">${esc(pretty(k))}</div></div>`;
+        }else{
+          blocks += renderBlock(k, v);
+        }
+      }
+      return (stats ? '<div class="stats">' + stats + '</div>' : '') + blocks;
+    }
+
+    function renderBlock(title, v){
+      let body = '';
+      if(Array.isArray(v)){
+        if(!v.length) body = '<div class="empty">Nothing to show.</div>';
+        else if(v.every(isScalar)) body = '<div class="chips">' + v.map(x => `<span class="chip">${esc(x)}</span>`).join('') + '</div>';
+        else if(v.every(isObj)) body = table(v);
+        else body = '<pre>' + esc(JSON.stringify(v,null,2)) + '</pre>';
+      }else if(isObj(v)){
+        const vals = Object.values(v);
+        if(vals.length && vals.every(x => typeof x === 'number')) body = bars(v);
+        else if(vals.length && vals.every(isObj)) body = table(Object.entries(v).map(([k,o]) => Object.assign({name:k}, o)));
+        else if(vals.length && vals.every(isScalar)) body = table([v]);
+        else body = '<pre>' + esc(JSON.stringify(v,null,2)) + '</pre>';
+      }
+      return `<div class="block-title">${esc(pretty(title))}</div>${body}`;
+    }
+
+    function bars(obj){
+      const entries = Object.entries(obj).sort((a,b) => b[1]-a[1]);
+      const max = Math.max(...entries.map(e => e[1]), 1);
+      return entries.map(([k,v]) =>
+        `<div class="bar-row"><span class="n" title="${esc(k)}">${esc(k)}</span>
+         <span class="bar"><i style="width:${(v/max*100).toFixed(1)}%"></i></span>
+         <span class="c">${esc(v)}</span></div>`).join('');
+    }
+
+    function table(rows){
+      const cols = [];
+      rows.forEach(r => Object.keys(r).forEach(c => { if(!cols.includes(c)) cols.push(c); }));
+      const head = cols.map(c => `<th>${esc(pretty(c))}</th>`).join('');
+      const body = rows.map(r => '<tr>' + cols.map(c => {
+        let val = r[c];
+        if(val !== null && typeof val === 'object') val = JSON.stringify(val);
+        const cls = (val === true || /^blocked$/i.test(String(val))) ? ' class="blocked"' : '';
+        return `<td${cls}>${val === undefined ? '' : esc(val)}</td>`;
+      }).join('') + '</tr>').join('');
+      return `<div class="tbl-wrap"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+    }
+
+    /* ---------- Init ---------- */
+    checkHealth();
     fetchRules();
 </script>
 </body>
